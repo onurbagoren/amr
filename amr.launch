@@ -1,0 +1,11 @@
+<launch>
+	<include file="$(find turtlebot_bringup)/launch/minimal.launch"/>
+	<include file="$(find turtlebot_bringup)/launch/3dsensor.launch"/>
+	<node name="gui_node" pkg="gui" type="gui_node"/>
+	<node name="planner_xy_node" pkg="planner" type="planner_xy_node"/>
+	<node name="drive_to_point_node" pkg="pfc" type="drive_to_point_node"/>
+	<node name="perception_node" pkg="perception" type="perception_node"/>
+	<node name="localization_node" pkg="localization" type="localization_node"/>
+	<node name="mapper_node" pkg="mapper" type="mapper_node"/>
+	<node name="executive_node" pkg="executive" type="executive_node"/>
+</launch>

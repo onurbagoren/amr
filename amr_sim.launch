@@ -1,0 +1,10 @@
+<launch>
+	<node name="obstacles_publisher" pkg="sim" type="obstacles_publisher"/>
+	<node name="sim_node" pkg="sim" type="sim_node"/>
+	<node name="gui_node" pkg="gui" type="gui_node"/>
+	<node name="planner_xy_node" pkg="planner" type="planner_xy_node"/>
+	<node name="drive_to_point_node" pkg="pfc" type="drive_to_point_node"/>
+	<node name="localization_node" pkg="localization" type="localization_node"/>
+	<node name="mapper_node" pkg="mapper" type="mapper_node"/>
+	<node name="executive_node" pkg="executive" type="executive_node"/>
+</launch>
