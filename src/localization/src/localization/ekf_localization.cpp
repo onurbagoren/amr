@@ -77,9 +77,8 @@ step( const double& dt ){
 
 	double _vt = _u.linear.x;
 	double _wt = _u.angular.z;
-	
-	//cout << "_vt : " << _vt << endl;
-	//cout << "_wt : " << _wt << endl;
+
+	//Algorithm from Probabilistic Robotics - EKF Localization
 	
 	if( _wt == 0 ) {
 		_wt = 0.0001;
@@ -92,15 +91,6 @@ step( const double& dt ){
 	Gt( 1, 2 ) = -( _vt / _wt ) * sin( _mu ( 2 ) ) - ( _vt / _wt ) * sin( _mu( 2 ) + _wt * dt);
 	Gt( 2, 2 ) = 1.0;
 	
-	/*cout << " Gt : " << endl;
-	
-	for( unsigned int i = 0; i < 3; i++ ){
-		for( unsigned int j = 0; j < 3; j++ ){
-			cout << Gt( i, j ) << " ";
-		}
-		cout << endl;
-	}*/
-	
 	Eigen::MatrixXd Vt = Eigen::MatrixXd::Zero( 3, 2 );
 	
 	Vt( 0, 0 ) = ( -sin( _mu( 2 ) ) + sin( _mu( 2 ) + _wt * dt ) ) / _wt ;
@@ -109,41 +99,14 @@ step( const double& dt ){
 	Vt( 1, 1 ) = -( ( _vt * ( cos( _mu( 2 ) ) - cos( _mu ( 2 ) + _wt * dt ) ) ) / ( _wt * _wt ) ) + ( _vt * sin( _mu( 2 ) + _wt * dt ) * dt ) / _wt;
 	Vt( 2, 1 ) = dt;
 	
-	/*cout << " Vt : " << endl;
-	
-	for( unsigned int i = 0; i < 3; i++ ){
-		for( unsigned int j = 0; j < 2; j++ ){
-			cout << Vt( i, j ) << " ";
-		}
-		cout << endl;
-	}*/
-	
 	Eigen::MatrixXd Mt = Eigen::MatrixXd::Zero( 2, 2 );
 	Mt( 0, 0 ) = _alpha( 0 ) * pow( _vt, 2 ) + _alpha( 1 ) * pow( _wt, 2 );
 	Mt( 1, 1 ) = _alpha( 2 ) * pow( _vt, 2 ) + _alpha( 3 ) * pow( _wt, 2 );
-	
-	/*cout << " Mt : " << endl;
-	
-	for( unsigned int i = 0; i < 2; i++ ){
-		for( unsigned int j = 0; j < 2; j++ ){
-			cout << Mt( i, j ) << " ";
-		}
-		cout << endl;
-	}*/
 	
 	Eigen::VectorXd _mu_h = Eigen::VectorXd::Zero( 3 );
 	_mu_h( 0 ) = _mu( 0 ) + ( ( -_vt / _wt * sin( _mu( 2 ) ) )  + ( _vt / _wt * sin( _mu( 2 ) + _wt * dt ) ) );
 	_mu_h( 1 ) = _mu( 1 ) + (( _vt / _wt * cos( _mu( 2 ) ) )  - ( _vt / _wt * cos( _mu( 2 ) + _wt * dt ) ) );
 	_mu_h( 2 ) = _mu( 2 ) +  _wt * dt;
-	
-	/*cout << " _mu_h : " << endl;
-	
-	for( unsigned int i = 0; i < 3; i++ ){
-			cout << _mu_h( i ) << " ";
-	}
-	cout << endl;
-	
-	cout << "operation 1" << endl;*/
 	
 	Eigen::MatrixXd _sigma_h = Eigen::MatrixXd::Zero( 3, 3 );
 	_sigma_h = Gt * _sigma * Gt.transpose() + Vt * Mt * Vt.transpose();
@@ -160,17 +123,11 @@ step( const double& dt ){
 	_I( 2, 2 ) = 1.0;
 	Eigen::VectorXd _z_new = Eigen::VectorXd::Zero( 3 );
 	
-	//cout << "observations size = " << _z.observations.size() <<endl;
-	
-	/*for ( unsigned int i = 0; i < _z.observations.size(); i++ ){	
+	for ( unsigned int i = 0; i < _z.observations.size(); i++ ){	
 		cout << "observations[ " << i << " ], range = " << _z.observations[ i ].range << ", bearing = " << _z.observations[ i ].bearing << ",signature = "<< _z.observations[ i ].signature << endl;
 		cout << "for observation[ " << i  << " ], _mu_h( 0 ) : " << _mu_h( 0 ) << " _mu_h( 1 ) : " << _mu_h( 1 ) << " _mu_h( 2 ): " << _mu_h( 2 ) << endl << endl;
 	
 		geometry_msgs::Point curr_landmark = _landmarks[ _z.observations[ i ].signature ];
-		//cout << "current landmark rn = " << endl << curr_landmark << endl;
-		//cout << endl;
-		//cout << curr_landmark << endl;
-		//cout << endl;
 		
 		cout << "current landmark x: " << curr_landmark.x - _mu_h(0) << ", y: " << curr_landmark.y - _mu_h(1) << endl;
 		
@@ -178,13 +135,10 @@ step( const double& dt ){
 		
 		//cout << "distance = " << sqrt( dist_squared ) << endl;
 		
-		
-		//cout << "assign z_h" << endl;
 		_z_h( 0 ) = sqrt( dist_squared );
 		_z_h( 1 ) = atan2( curr_landmark.y - _mu_h(1), curr_landmark.x - _mu_h(0) ) - _mu_h( 2 );
 		_z_h( 2 ) = _z.observations[ i ].signature; 
 		
-		//cout << "assign Ht" << endl;
 		cout << "denom: " << sqrt(dist_squared) << ", " << "whole expression: " << - ( curr_landmark.x - _mu_h( 0 ) ) / sqrt( dist_squared ) << endl;
 		Ht( 0, 0 ) = - (double)( curr_landmark.x - _mu_h( 0 ) ) / (double)(sqrt( dist_squared ));
 		Ht( 0, 1 ) = - (double)( curr_landmark.y - _mu_h( 1 ) ) / (double)sqrt( dist_squared );
@@ -192,10 +146,8 @@ step( const double& dt ){
 		Ht( 1, 1 ) = - (double)( curr_landmark.x - _mu_h( 1 ) ) / dist_squared;
 		Ht( 1, 2 ) = - 1.0;
 		
-		//cout << "operation 2" << endl;
 		St = Ht * _sigma_h * Ht.transpose() + _q;
-		
-		//cout << "operation 3" << endl;
+
 		Kt = _sigma_h * Ht.transpose() * St.inverse();
 		
 		_z_new( 0 ) = _z.observations[ i ].range;
@@ -205,14 +157,10 @@ step( const double& dt ){
 		_dz = _z_new - _z_h;
 		
 		_dz( 1 ) = fmod( _dz( 1 ), 2 * M_PI );
-		
-		//cout << "_dz = " << _dz << endl;
-		
+				
 		_mu_h = _mu_h + Kt * _dz;
 		_sigma_h = ( _I - Kt * Ht ) * _sigma_h;
-		
-		//cout << "for observation[ " << i  << " ], _z_h( 0 ) : " << _z_h( 0 ) << " _z_h( 1 ) : " << _z_h( 1 ) << " _z_h( 2 ): " << _z_h( 2 ) << endl << endl;
-	}*/
+	}
 	
 	_mu = _mu_h;
 	_sigma = _sigma_h;
