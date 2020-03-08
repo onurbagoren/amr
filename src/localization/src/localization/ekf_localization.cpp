@@ -71,6 +71,12 @@ handle_observations( const perception::Observations::ConstPtr& msg ){
 	return;
 }
 
+/*
+
+From Probabalistic Robotics page 204 pseudo-code
+
+*/
+
 void
 EKF_Localization::
 step( const double& dt ){
@@ -139,7 +145,6 @@ step( const double& dt ){
 		_z_h( 1 ) = atan2( curr_landmark.y - _mu_h(1), curr_landmark.x - _mu_h(0) ) - _mu_h( 2 );
 		_z_h( 2 ) = _z.observations[ i ].signature; 
 		
-		cout << "denom: " << sqrt(dist_squared) << ", " << "whole expression: " << - ( curr_landmark.x - _mu_h( 0 ) ) / sqrt( dist_squared ) << endl;
 		Ht( 0, 0 ) = - (double)( curr_landmark.x - _mu_h( 0 ) ) / (double)(sqrt( dist_squared ));
 		Ht( 0, 1 ) = - (double)( curr_landmark.y - _mu_h( 1 ) ) / (double)sqrt( dist_squared );
 		Ht( 1, 0 ) = (double)( curr_landmark.y - _mu_h( 1 ) ) / dist_squared;
