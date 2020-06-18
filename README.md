@@ -4,8 +4,8 @@ Run catkin_make
 Run source devel/setup.bash
 
 For simulation, run:
-	roslaunch amr_sim.launch
+	`roslaunch amr_sim.launch` after creating and sourceing a catkin workspace
 For running the TurtleBot2, run:
-	roslaunch amr.launch
+	`roslaunch amr.launch` after creating and sourceing a catkin workspace
 	
 It takes 5 seconds for goal to be published after bringing up the robot.
